@@ -1,7 +1,15 @@
 replicaCount: 1
 
+ingress:
+  annotations:
+    # cert-manager가 selfsigned 발급자를 사용해 인그레스 객체에 필요한 인증서를 관리
+    cert-manager.io/issuer: selfsigned
+  tls:
+    # 인증서를 보관하는 시크릿의 이름
+    secretName: tls-certificate
+
 image:
-  repository: hands-on
+  repository: my-space
   tag: latest
   pullPolicy: Never
   args: []

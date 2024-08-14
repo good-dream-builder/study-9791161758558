@@ -6,7 +6,15 @@ image:
 env:
   SPRING_PROFILES_ACTIVE: "docker"
 
+# 사용할 구성 파일을 지정하는 스프링 환경 변수를 추가
+  SPRING_CONFIG_LOCATION: file:/config-repo/application.yml,file:/config-repo/product.yml
+
 livenessProbe_enabled: true
 
 readinessProbe_enabled: true
 
+# 마이크로서비스가 사용할 구성 파일의 위치를 지정하는 컨피그맵을 추가
+configmap:
+  enabled: true
+  volumeMounts:
+    mountPath: /config-repo

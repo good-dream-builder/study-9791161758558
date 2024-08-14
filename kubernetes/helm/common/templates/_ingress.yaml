@@ -1,0 +1,41 @@
+{{- define "common.ingress" -}}
+{{- $common := dict "Values" .Values.common -}}
+{{- $noCommon := omit .Values "common" -}}
+{{- $overrides := dict "Values" $noCommon -}}
+{{- $noValues := omit . "Values" -}}
+{{- with merge $noValues $overrides $common -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "common.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "common.name" . }}
+    helm.sh/chart: {{ include "common.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- with .Values.ingress.annotations }}
+annotations:
+  {{ toYaml . | indent 4 }}
+  {{- end }}
+spec:
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host | quote }}
+      # HTTPS 요청을 처리할 때 사용하는 인증서는 values.yaml 파일의 ingress.tls.secretName 키로 이름을 지정한 시크릿에 저장
+      secretName: {{ .Values.ingress.tls.secretName }}
+  # 라우팅 규칙을 선언
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+        {{- range .Values.ingress.paths }}
+        - path: {{ .path }}
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .service }}
+              port:
+                name: http
+
+        {{- end }}
+  {{- end }}
+{{- end -}}
